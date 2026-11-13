@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bikeBatBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+    <linearGradient id="termBikePos" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <filter id="bikeShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <circle cx="200" cy="150" r="120" fill="#e2e8f0" opacity="0.4"/>
+
+  <!-- Battery -->
+  <g transform="translate(100, 45)" filter="url(#bikeShadow)">
+    <!-- Terminals -->
+    <rect x="25" y="10" width="26" height="24" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+    <circle cx="38" cy="22" r="4" fill="#64748b"/>
+    <rect x="28" y="32" width="20" height="8" fill="url(#termBikePos)"/>
+    <text x="38" y="39" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">+</text>
+
+    <rect x="149" y="10" width="26" height="24" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+    <circle cx="162" cy="22" r="4" fill="#64748b"/>
+    <rect x="152" y="32" width="20" height="8" fill="#334155"/>
+    <text x="162" y="39" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">-</text>
+
+    <!-- Top Cap (Sealed VRLA) -->
+    <rect x="15" y="38" width="170" height="22" rx="4" fill="#0f172a"/>
+    <rect x="25" y="44" width="150" height="10" rx="2" fill="#059669"/>
+
+    <!-- Main Body -->
+    <rect x="15" y="58" width="170" height="150" rx="5" fill="url(#bikeBatBg)"/>
+
+    <!-- Label -->
+    <rect x="25" y="75" width="150" height="95" rx="4" fill="#059669"/>
+    <rect x="28" y="78" width="144" height="89" rx="3" fill="#0b1120"/>
+
+    <text x="100" y="102" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#ffffff" text-anchor="middle">BIKE &amp; SCOOTY</text>
+    <text x="100" y="118" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#34d399" text-anchor="middle">VRLA / AGM MF</text>
+    <text x="100" y="138" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">12V &#8226; SELF-START</text>
+    <text x="100" y="153" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#94a3b8" text-anchor="middle">SPILL PROOF &#8226; LONG LIFE</text>
+
+    <!-- Side Grip Texture -->
+    <line x1="20" y1="185" x2="180" y2="185" stroke="#334155" stroke-width="2"/>
+    <line x1="20" y1="192" x2="180" y2="192" stroke="#334155" stroke-width="2"/>
+    <line x1="20" y1="199" x2="180" y2="199" stroke="#334155" stroke-width="2"/>
+  </g>
+</svg>
+

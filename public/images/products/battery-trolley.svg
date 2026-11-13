@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="trolleyBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <filter id="trolleyShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <circle cx="200" cy="150" r="130" fill="#e2e8f0" opacity="0.4"/>
+
+  <g transform="translate(85, 45)" filter="url(#trolleyShadow)">
+    <!-- Top Shelf for Inverter -->
+    <rect x="25" y="15" width="180" height="20" rx="3" fill="#0f172a"/>
+    <rect x="28" y="18" width="174" height="4" rx="2" fill="#059669"/>
+
+    <!-- Inverter Outline on Top Shelf -->
+    <rect x="40" y="2" width="150" height="15" rx="3" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+
+    <!-- Main Cabinet / Housing (Holds battery inside securely) -->
+    <rect x="20" y="32" width="190" height="155" rx="6" fill="url(#trolleyBody)"/>
+
+    <!-- Ventilation Grill Slits -->
+    <g stroke="#0f172a" stroke-width="3" stroke-linecap="round">
+      <line x1="40" y1="55" x2="190" y2="55"/>
+      <line x1="40" y1="65" x2="190" y2="65"/>
+      <line x1="40" y1="75" x2="190" y2="75"/>
+      <line x1="40" y1="85" x2="190" y2="85"/>
+      <line x1="40" y1="95" x2="190" y2="95"/>
+    </g>
+
+    <!-- Front Badge -->
+    <rect x="40" y="115" width="150" height="50" rx="5" fill="#0f172a"/>
+    <text x="115" y="135" font-family="Arial, sans-serif" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">INVERTER TROLLEY</text>
+    <text x="115" y="150" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#34d399" text-anchor="middle">ACID-PROOF &#8226; CASTOR WHEELS</text>
+
+    <!-- Bottom Base Plate -->
+    <rect x="15" y="187" width="200" height="10" rx="2" fill="#090d16"/>
+
+    <!-- 5 Heavy Duty Castor Wheels -->
+    <circle cx="35" cy="205" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+    <circle cx="80" cy="205" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+    <circle cx="115" cy="205" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+    <circle cx="150" cy="205" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+    <circle cx="195" cy="205" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+  </g>
+</svg>
+

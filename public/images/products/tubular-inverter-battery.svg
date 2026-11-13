@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="tubularBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="tubularLid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+    <filter id="tubShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <circle cx="200" cy="150" r="130" fill="#e2e8f0" opacity="0.4"/>
+
+  <g transform="translate(70, 35)" filter="url(#tubShadow)">
+    <!-- 6 Float Indicators with Water Level Tubes -->
+    <!-- Floats: x=50, 85, 120, 155, 190, 225 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <!-- 1 -->
+      <rect x="42" y="2" width="12" height="26" rx="2" fill="#ffffff"/>
+      <rect x="45" y="6" width="6" height="12" fill="#ef4444"/>
+      <!-- 2 -->
+      <rect x="77" y="2" width="12" height="26" rx="2" fill="#ffffff"/>
+      <rect x="80" y="6" width="6" height="12" fill="#ef4444"/>
+      <!-- 3 -->
+      <rect x="112" y="2" width="12" height="26" rx="2" fill="#ffffff"/>
+      <rect x="115" y="6" width="6" height="12" fill="#ef4444"/>
+      <!-- 4 -->
+      <rect x="147" y="2" width="12" height="26" rx="2" fill="#ffffff"/>
+      <rect x="150" y="6" width="6" height="12" fill="#ef4444"/>
+      <!-- 5 -->
+      <rect x="182" y="2" width="12" height="26" rx="2" fill="#ffffff"/>
+      <rect x="185" y="6" width="6" height="12" fill="#ef4444"/>
+      <!-- 6 -->
+      <rect x="217" y="2" width="12" height="26" rx="2" fill="#ffffff"/>
+      <rect x="220" y="6" width="6" height="12" fill="#ef4444"/>
+    </g>
+
+    <!-- Terminals on extreme ends -->
+    <rect x="18" y="14" width="16" height="18" rx="2" fill="#ef4444"/>
+    <text x="26" y="27" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">+</text>
+
+    <rect x="238" y="14" width="16" height="18" rx="2" fill="#334155"/>
+    <text x="246" y="27" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">-</text>
+
+    <!-- Top Red Lid -->
+    <rect x="10" y="28" width="250" height="36" rx="5" fill="url(#tubularLid)"/>
+
+    <!-- Handles on sides -->
+    <path d="M 12 50 L 0 65 L 12 80" fill="none" stroke="#dc2626" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 258 50 L 270 65 L 258 80" fill="none" stroke="#dc2626" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Tall Main Body (Deep cycle) -->
+    <rect x="12" y="60" width="246" height="165" rx="3" fill="url(#tubularBody)"/>
+
+    <!-- Vertical Spine Lines (Tubular plate indicators) -->
+    <g stroke="#1e293b" stroke-width="2">
+      <line x1="48" y1="75" x2="48" y2="215"/>
+      <line x1="83" y1="75" x2="83" y2="215"/>
+      <line x1="118" y1="75" x2="118" y2="215"/>
+      <line x1="153" y1="75" x2="153" y2="215"/>
+      <line x1="188" y1="75" x2="188" y2="215"/>
+      <line x1="223" y1="75" x2="223" y2="215"/>
+    </g>
+
+    <!-- Brand Label -->
+    <rect x="35" y="85" width="200" height="95" rx="6" fill="#059669"/>
+    <rect x="38" y="88" width="194" height="89" rx="4" fill="#0f172a"/>
+
+    <text x="135" y="112" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1">TALL TUBULAR</text>
+    <text x="135" y="130" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#34d399" text-anchor="middle">INVERTER BATTERY 150Ah</text>
+    <text x="135" y="148" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">DEEP DISCHARGE &#8226; LONG BACKUP</text>
+    <text x="135" y="164" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#94a3b8" text-anchor="middle">SUPERIOR CYCLE LIFE &#8226; ULTRA LOW MAINTENANCE</text>
+
+    <!-- Bottom Rim -->
+    <rect x="8" y="222" width="254" height="12" rx="3" fill="#090d16"/>
+  </g>
+</svg>
+
