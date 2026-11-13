@@ -1,10 +1,17 @@
 -- ==============================================================================
--- NALLU TECH - Complete Supabase Database Schema & Storage Setup
+-- NALLU TECH - Production Supabase Database Schema, RLS & Storage Setup
 -- ==============================================================================
 -- Instructions:
 -- 1. Open your Supabase Dashboard: https://supabase.com/dashboard
 -- 2. Select your project -> Click "SQL Editor" in the left sidebar
 -- 3. Click "New Query", paste this entire script, and click "RUN"
+--
+-- After running this schema:
+-- Create your admin user in "Authentication" -> "Users" (e.g. nallutech07@gmail.com).
+-- To explicitly authorize the admin role, run in SQL Editor:
+--   UPDATE auth.users
+--   SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
+--   WHERE email = 'nallutech07@gmail.com';
 -- ==============================================================================
 
 -- 1. Create Products Table
@@ -12,16 +19,21 @@ CREATE TABLE IF NOT EXISTS public.products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     brand TEXT NOT NULL,
-    model_number TEXT NOT NULL,
+    model_number TEXT NOT NULL DEFAULT '',
     category TEXT NOT NULL,
     image_url TEXT NOT NULL,
     price NUMERIC NULL,
-    description TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
     specifications JSONB NOT NULL DEFAULT '[]'::jsonb,
     is_available BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
+CREATE INDEX IF NOT EXISTS idx_products_is_available ON public.products(is_available);
+CREATE INDEX IF NOT EXISTS idx_products_created_at ON public.products(created_at DESC);
 
 -- 2. Create Shop Settings Table (for editable address, contact, maps link)
 CREATE TABLE IF NOT EXISTS public.shop_settings (
@@ -33,10 +45,11 @@ CREATE TABLE IF NOT EXISTS public.shop_settings (
     whatsapp TEXT NOT NULL DEFAULT '918248949759',
     maps_url TEXT NOT NULL DEFAULT 'https://www.google.com/maps/place/Nallu+Tech,/@11.5416413,79.1292909,488m/data=!3m1!1e3!4m6!3m5!1s0x3bab4721f742a30b:0xe674301feac43ab4!8m2!3d11.541912!4d79.1315204!16s%2Fg%2F11c7pc27g7?entry=ttu',
     address TEXT DEFAULT '',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Seed initial row in shop_settings
+-- Seed initial row in shop_settings if not already present
 INSERT INTO public.shop_settings (id, shop_name, tagline, experience, phone, whatsapp, maps_url, address)
 VALUES (
     1,
@@ -49,68 +62,110 @@ VALUES (
     ''
 ) ON CONFLICT (id) DO NOTHING;
 
--- 3. Enable Row Level Security (RLS)
+-- 3. Automatic updated_at Trigger Function
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_products_updated_at ON public.products;
+CREATE TRIGGER trigger_products_updated_at
+BEFORE UPDATE ON public.products
+FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS trigger_shop_settings_updated_at ON public.shop_settings;
+CREATE TRIGGER trigger_shop_settings_updated_at
+BEFORE UPDATE ON public.shop_settings
+FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- 4. Admin Security Helper Function
+-- Restricts admin modifications to authenticated users matching the store admin email or having role 'admin'
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN (
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 5. Enable Row Level Security (RLS)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shop_settings ENABLE ROW LEVEL SECURITY;
 
--- 4. Products RLS Policies
+-- 6. Products RLS Policies
 -- Public visitors can only view products
 DROP POLICY IF EXISTS "Public read access for products" ON public.products;
 CREATE POLICY "Public read access for products"
     ON public.products FOR SELECT
     USING (true);
 
--- Authenticated admins can create, update, and delete products
+-- Only explicitly verified admins can create, update, and delete products
 DROP POLICY IF EXISTS "Admin insert access for products" ON public.products;
 CREATE POLICY "Admin insert access for products"
     ON public.products FOR INSERT
-    WITH CHECK (auth.role() = 'authenticated');
+    WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin update access for products" ON public.products;
 CREATE POLICY "Admin update access for products"
     ON public.products FOR UPDATE
-    USING (auth.role() = 'authenticated')
-    WITH CHECK (auth.role() = 'authenticated');
+    USING (public.is_admin())
+    WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin delete access for products" ON public.products;
 CREATE POLICY "Admin delete access for products"
     ON public.products FOR DELETE
-    USING (auth.role() = 'authenticated');
+    USING (public.is_admin());
 
--- 5. Shop Settings RLS Policies
+-- 7. Shop Settings RLS Policies
+-- Public visitors can read shop settings
 DROP POLICY IF EXISTS "Public read access for shop settings" ON public.shop_settings;
 CREATE POLICY "Public read access for shop settings"
     ON public.shop_settings FOR SELECT
     USING (true);
 
+-- Only explicitly verified admins can update shop settings
 DROP POLICY IF EXISTS "Admin write access for shop settings" ON public.shop_settings;
 CREATE POLICY "Admin write access for shop settings"
     ON public.shop_settings FOR ALL
-    USING (auth.role() = 'authenticated')
-    WITH CHECK (auth.role() = 'authenticated');
+    USING (public.is_admin())
+    WITH CHECK (public.is_admin());
 
--- 6. Storage Bucket for Product Images
+-- 8. Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
 
--- Storage RLS: Public read, authenticated upload/delete
+-- Storage RLS: Public read, admin-only upload and delete
 DROP POLICY IF EXISTS "Public read access for product images" ON storage.objects;
 CREATE POLICY "Public read access for product images"
     ON storage.objects FOR SELECT
     USING (bucket_id = 'product-images');
 
-DROP POLICY IF EXISTS "Authenticated users can upload product images" ON storage.objects;
-CREATE POLICY "Authenticated users can upload product images"
+DROP POLICY IF EXISTS "Admin upload access for product images" ON storage.objects;
+CREATE POLICY "Admin upload access for product images"
     ON storage.objects FOR INSERT
-    WITH CHECK (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+    WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
 
-DROP POLICY IF EXISTS "Authenticated users can delete product images" ON storage.objects;
-CREATE POLICY "Authenticated users can delete product images"
+DROP POLICY IF EXISTS "Admin update access for product images" ON storage.objects;
+CREATE POLICY "Admin update access for product images"
+    ON storage.objects FOR UPDATE
+    USING (bucket_id = 'product-images' AND public.is_admin())
+    WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
+
+DROP POLICY IF EXISTS "Admin delete access for product images" ON storage.objects;
+CREATE POLICY "Admin delete access for product images"
     ON storage.objects FOR DELETE
-    USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+    USING (bucket_id = 'product-images' AND public.is_admin());
 
--- 7. Seed Initial Verified Products (Populates catalog with real photos)
+-- 9. Seed Initial Verified Products (Safe: ON CONFLICT DO NOTHING)
 INSERT INTO public.products (name, brand, model_number, category, image_url, price, description, specifications, is_available)
 VALUES 
 ('Amaron PRO DIN65 Car Battery', 'Amaron', 'AAM-PR-0DIN65', 'Car Batteries', '/images/products/car-amaron.jpg', 7499, 'High performance zero-maintenance car battery engineered with patented Silven X alloy technology for extreme heat resistance and long service life.', '[{"key": "Capacity", "value": "65 Ah"}, {"key": "Voltage", "value": "12V"}, {"key": "Warranty", "value": "66 Months (36F + 30P)"}, {"key": "Technology", "value": "Silven X Alloy"}, {"key": "Maintenance", "value": "Zero Maintenance"}]'::jsonb, true),

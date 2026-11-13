@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, Mail, ArrowRight, BatteryCharging, AlertCircle } from 'lucide-react';
+import { Lock, Mail, ArrowRight, BatteryCharging, AlertCircle, AlertTriangle } from 'lucide-react';
 
 export const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -9,11 +9,18 @@ export const AdminLogin: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated, isUsingSupabase } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = (location.state as any)?.from?.pathname || '/admin';
+
+  // Automatically redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,16 +59,31 @@ export const AdminLogin: React.FC = () => {
           Admin Sign In
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Access the private product management and store settings console.
+          Access the private product catalog and store settings console.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 sm:px-10 shadow-xl shadow-gray-200/50 rounded-2xl border border-gray-200 space-y-6">
+          {/* Missing Supabase configuration banner */}
+          {!isUsingSupabase && (
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-amber-800">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Supabase Cloud Not Configured</span>
+              </div>
+              <p className="leading-relaxed">
+                Your local <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">.env</code> is missing
+                Supabase credentials. Set <code className="font-mono">VITE_SUPABASE_URL</code> and{' '}
+                <code className="font-mono">VITE_SUPABASE_ANON_KEY</code> to enable Supabase Auth.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-800 animate-shake">
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-              <span>{error}</span>
+              <span className="leading-relaxed">{error}</span>
             </div>
           )}
 
@@ -73,7 +95,7 @@ export const AdminLogin: React.FC = () => {
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="text"
+                  type="email"
                   required
                   placeholder="nallutech07@gmail.com"
                   value={email}
@@ -103,7 +125,7 @@ export const AdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 shadow-md transition-colors mt-2"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 shadow-md transition-colors mt-2 cursor-pointer"
             >
               {submitting ? (
                 <>
@@ -129,4 +151,3 @@ export const AdminLogin: React.FC = () => {
     </div>
   );
 };
-

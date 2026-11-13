@@ -1,17 +1,17 @@
-# NALLU TECH 🔋 | Business Website & Product Management System
+# NALLU TECH 🔋 | Business Website & Cloud Product Management System
 
 > **"Powering Every Journey, Every Home."**  
 > **15+ Years of Experience &bull; Trusted Battery Solutions**
 
-A modern, responsive, high-performance business website built for **NALLU TECH**, a premier battery, UPS, and inverter shop. The application features a fast public-facing storefront and a private, secure Admin Dashboard for managing products, categories, pricing, specifications, and shop settings without code modifications.
+A modern, responsive, high-performance business website and cloud-backed administration portal built for **NALLU TECH**, a premier battery, UPS, and inverter enterprise. The application features a fast public-facing storefront and a private, secure Admin Console for managing products, categories, pricing, specifications, and shop settings backed by **Supabase PostgreSQL & Cloud Storage**.
 
 ---
 
 ## 🌟 Key Features
 
 ### Public Website
-- **Hero & Brand Highlights:** Showcases 15+ years of experience, core brand values, genuine product guarantees, and quick action buttons.
-- **9 Specialised Product Categories:**
+- **Hero & Brand Highlights:** Showcases 15+ years of verified industry experience, genuine warranty guarantees, and immediate contact shortcuts.
+- **9 Specialized Product Categories:**
   1. Car Batteries
   2. Bike Batteries
   3. Scooty Batteries
@@ -21,25 +21,26 @@ A modern, responsive, high-performance business website built for **NALLU TECH**
   7. Solar Batteries
   8. Inverters
   9. Other Battery Products
-- **Dynamic Search & Filtering:** Filter by Category, Brand (Amaron, Exide, Luminous, etc.), and in-stock availability; search by model number, capacity, or specifications; sort by price (₹) or name.
+- **Dynamic Search & Filtering:** Filter by Category, Brand (Amaron, Exide, Luminous, Microtek), and availability status; search by model number, capacity, or specifications; sort by price (₹ INR) or name.
 - **Neat Product Cards & Modals:** Displays brand, model number, category, detailed specifications table, availability status, and formatted Indian Rupee (`₹`) pricing (or "Price on Enquiry").
 - **WhatsApp Integration:** Direct WhatsApp button with pre-filled enquiry message (`Hello NALLU TECH, I would like to enquire about [Product Name]`).
 - **Direct Phone Dialler:** One-click phone calling to `+91 8248949759`.
-- **Verified Shop Location & Directions:** Exact Google Maps location link (`11.541912, 79.1315204`) with embedded interactive map and "Get Directions" trigger.
-- **10 Core Services:** Highlighting battery sales, replacement, repair, jump-start assistance, inverter PCB service, UPS diagnostics, and cable fitment.
-- **Editable Shop Address:** Displays shop address dynamically from admin settings.
+- **Verified Shop Location & Directions:** Exact Google Maps location link (`11.541912, 79.1315204`) with embedded interactive map and "Get Directions" navigation.
+- **10 Core Services:** Highlighting battery sales, replacement, testing, jump-start assistance, inverter PCB service, UPS diagnostics, and cable fitment.
+- **Dynamic Shop Address:** Displays shop address dynamically from admin settings.
 
 ### Private Admin Dashboard (`/admin`)
-- **Secure Authentication:** Protected route requiring admin login.
+- **Secure Authentication:** Protected route powered by Supabase Authentication (`supabase.auth.signInWithPassword`, `signOut`, `getSession`, and session persistence via `onAuthStateChange`).
+- **Role-Based Row Level Security (RLS):** Database policies restrict create, update, and delete actions exclusively to verified administrators. Public visitors have read-only access.
 - **Product Management (CRUD):**
   - Add new products with image upload, brand, model number, specifications, category, and price.
-  - Edit existing products in real-time.
+  - Edit existing products with immediate cloud synchronization.
   - Delete products with confirmation modal.
   - Quick toggle for product availability ("In Stock" vs "Out of Stock").
 - **Shop Address & Settings Management:** Edit the physical shop address, phone number, WhatsApp contact, and Google Maps URL directly from the dashboard.
-- **Image Upload:** Supports local compressed image upload and Supabase cloud storage.
-- **Hybrid Persistence:** Connects seamlessly with Supabase Postgres DB & Storage, with automatic local persistent storage fallback so testing works out of the box.
-- **Data Export & Restoration:** Export catalog to JSON and one-click restore initial seed inventory.
+- **Product Image Storage (`product-images` bucket):** Automatic client-side canvas compression before uploading directly to Supabase Cloud Storage.
+- **Zero Misleading Fallback:** Clean connection diagnostics with explicit badges and notifications; cloud changes are never silently spoofed in localStorage when offline.
+- **Data Export:** Export catalog to JSON anytime.
 
 ---
 
@@ -47,8 +48,8 @@ A modern, responsive, high-performance business website built for **NALLU TECH**
 
 - **Frontend:** React 18, TypeScript, Vite
 - **Styling:** Tailwind CSS, PostCSS, Lucide Icons
-- **Routing:** React Router DOM (v6)
-- **Backend & Database:** Supabase (PostgreSQL, Row Level Security, Storage, Authentication) with offline-first persistent fallback
+- **Routing:** React Router DOM (v6) with SPA redirects for Render/Netlify
+- **Backend & Cloud Database:** Supabase (PostgreSQL, Row Level Security, Storage, Authentication)
 - **Formatting:** Indian Rupee (`₹` INR) currency localization
 
 ---
@@ -56,7 +57,7 @@ A modern, responsive, high-performance business website built for **NALLU TECH**
 ## 🚀 Getting Started Locally
 
 ### 1. Prerequisites
-- **Node.js** (v18 or higher recommended)
+- **Node.js** (v18 or higher)
 - **npm** (v9 or higher)
 
 ### 2. Install Dependencies
@@ -64,111 +65,88 @@ A modern, responsive, high-performance business website built for **NALLU TECH**
 npm install
 ```
 
-### 3. Start Development Server
+### 3. Configure Local Environment
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Open `.env` and fill in your Supabase credentials:
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+```
+> **SECURITY NOTICE:** Only provide the `anon` public key in frontend applications. **Never** include or expose your `service_role` secret key!
+
+### 4. Start Development Server
 ```bash
 npm run dev
 ```
 Open your browser at `http://localhost:5173`.
 
-### 4. Build for Production
+### 5. Build for Production
 ```bash
 npm run build
 ```
-The optimized bundle will be created in the `dist/` directory.
+The optimized production bundle will be built in the `dist/` directory.
 
 ---
 
-## 🔐 Admin Dashboard Access
-
-1. Open your browser and navigate to:
-   ```
-   http://localhost:5173/admin/login
-   ```
-   *(Or click "Admin Login" in the top bar or footer).*
-
-2. **Admin Credentials:**
-   - **Email / ID:** `nallutech07@gmail.com`
-   - **Password:** `Nallutech@1234`
-
----
-
-## 🗄️ Supabase Backend & Database Setup (Cloud Connection)
+## 🗄️ Supabase Cloud Backend Setup
 
 To connect your Supabase project for real-time cloud data storage:
 
-### Step 1: Create or Open Your Supabase Project
-1. Go to [supabase.com](https://supabase.com) and sign in.
-2. Create a new project (e.g. `NALLU-TECH`) in region **India (Mumbai)**.
-3. Once created, go to **Project Settings &rarr; Data API** (or API).
-4. Copy your **Project URL** and **`anon` `public` key**.
+### Step 1: Create Your Supabase Project
+1. Go to [https://supabase.com](https://supabase.com) and create a free project (e.g. `NALLU-TECH`) in region **India (Mumbai)**.
+2. In Project Settings &rarr; **API**, copy your **Project URL** and **`anon` `public` key**.
+3. Place them into your `.env` file or hosting provider's environment variables.
 
-### Step 2: Configure Environment Variables
-Open the `.env` file in the root folder of this project:
-```env
-VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_ANON_KEY=your-actual-anon-key-here
-```
-*(Make sure to use the safe `anon` `public` key, NEVER the `service_role` secret key!)*
-
-### Step 3: Run Database Schema & Storage Setup
+### Step 2: Run Database Schema & Storage Setup
 1. In your Supabase Dashboard, click **SQL Editor** (`>_`) in the left sidebar.
 2. Click **New Query**.
-3. Open `supabase_schema.sql` from this repository, copy all contents, paste it into the SQL Editor, and click **Run**.
+3. Open `supabase_schema.sql` from this repository, copy the full script, paste it into the SQL Editor, and click **RUN**.
    *This automatically creates:*
-   - `public.products` table with all columns and JSONB specifications
+   - `public.products` table with UUID primary keys and JSONB specifications
    - `public.shop_settings` table with verified NALLU TECH contact info
-   - Row Level Security (RLS) policies ensuring public visitors can only view products, while authenticated admins can create, update, and delete them
-   - `product-images` storage bucket with public read and authenticated write policies
-   - All 12 initial verified products with photos pre-seeded
+   - Automatic `updated_at` triggers for both tables
+   - Performance indexes on `category`, `is_available`, and `created_at`
+   - `public.is_admin()` security definer function
+   - Strict Row Level Security (RLS) policies allowing public read, but restricting insert/update/delete to authorized admins
+   - `product-images` storage bucket with public read and admin write permissions
+   - Pre-seeds 12 verified initial products with real photography (`ON CONFLICT DO NOTHING`)
 
-### Step 4: Create Admin User in Supabase Authentication
+### Step 3: Create Admin User & Authorize Role
 1. In Supabase Dashboard, navigate to **Authentication &rarr; Users**.
 2. Click **Add User** &rarr; **Create User**.
 3. Enter:
    - **User Email:** `nallutech07@gmail.com`
-   - **Password:** `Nallutech@1234`
-   - Turn **Auto Confirm User?** to **ON** (so no email confirmation is required).
-4. Click **Create User**.
+   - **Password:** *[Your strong chosen admin password]*
+   - Turn **Auto Confirm User?** to **ON**.
+4. In the SQL Editor, run this one-time query to grant explicit admin role permissions:
+   ```sql
+   UPDATE auth.users
+   SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
+   WHERE email = 'nallutech07@gmail.com';
+   ```
 
-You can now sign in at `/admin/login`. All products, prices, edits, and uploaded images will immediately persist in your live Supabase cloud database.
+Now you can sign in securely at `/admin/login`.
 
 ---
 
-## 🌐 Deploying to Vercel or Render
+## 🌐 Deploying to Render
 
-### Deploying to Vercel
-1. Push this repository to GitHub or GitLab.
-2. Go to [vercel.com](https://vercel.com) &rarr; **Add New Project**.
-3. Select your repository.
-4. Settings:
-   - **Framework Preset:** Vite
-   - **Root Directory:** `./`
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-5. Add Environment Variables (optional, for Supabase):
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-6. Click **Deploy**.
+This project is fully configured for zero-configuration static site deployment on **Render**:
 
-#### Vercel SPA Routing Configuration:
-Create `vercel.json` in the root folder if needed for deep linking:
-```json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
-```
-
-### Deploying to Render
-1. Go to [render.com](https://render.com) &rarr; **New Static Site**.
-2. Connect your repository.
-3. Configuration:
-   - **Build Command:** `npm run build`
+1. Push this repository to your GitHub account (`https://github.com/lingeshm-007/NALLU-TECH-`).
+2. Log in to [render.com](https://render.com) and select **New + &rarr; Static Site**.
+3. Connect your repository `NALLU-TECH-`.
+4. Configure Build & Publish Settings:
+   - **Build Command:** `npm install && npm run build`
    - **Publish Directory:** `dist`
-4. Add Rewrite Rule under **Redirects/Rewrites**:
-   - **Source:** `/*`
-   - **Destination:** `/index.html`
-   - **Action:** Rewrite
-5. Click **Create Static Site**.
+5. In the **Environment Variables** section, add:
+   - `VITE_SUPABASE_URL`: Your Supabase project URL (`https://<project-ref>.supabase.co`)
+   - `VITE_SUPABASE_ANON_KEY`: Your Supabase anon public key
+6. Client-Side Routing: `public/_redirects` is already included (`/* /index.html 200`) so all React Router links (`/products`, `/services`, `/admin`, etc.) work without 404 errors on page refresh.
+7. Click **Create Static Site**.
 
 ---
 
@@ -189,4 +167,3 @@ Create `vercel.json` in the root folder if needed for deep linking:
 
 ## 📄 License
 Commercial License &copy; NALLU TECH. All rights reserved.
-

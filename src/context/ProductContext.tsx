@@ -8,6 +8,8 @@ interface ProductContextType {
   products: Product[];
   isLoading: boolean;
   shopSettings: ShopSettings;
+  isUsingSupabase: boolean;
+  supabaseError: string | null;
   addProduct: (productData: Omit<Product, 'id' | 'created_at'>) => Promise<{ success: boolean; error?: string }>;
   updateProduct: (id: string, productData: Partial<Product>) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (id: string) => Promise<{ success: boolean; error?: string }>;
@@ -29,15 +31,62 @@ const DEFAULT_SETTINGS: ShopSettings = {
   phone: PHONE_NUMBER,
   whatsapp: WHATSAPP_NUMBER,
   maps_url: GOOGLE_MAPS_URL,
-  address: '', // Kept empty or editable as per requirement: "Do not invent a street address. Provide an editable address field in the admin dashboard."
+  address: '',
+};
+
+// Client-side canvas compression utility to reduce file size before uploading
+const compressImageToBlob = (file: File, maxDim = 1000): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) resolve(blob);
+              else reject(new Error('Canvas blob conversion failed.'));
+            },
+            'image/jpeg',
+            0.85
+          );
+        } else {
+          resolve(file);
+        }
+      };
+      img.onerror = () => reject(new Error('Failed to process image file.'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file from disk.'));
+    reader.readAsDataURL(file);
+  });
 };
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [shopSettings, setShopSettings] = useState<ShopSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
-  // Initialize settings from localStorage or DB
+  // Initialize settings from Supabase or localStorage
   const loadSettings = useCallback(async () => {
     if (isSupabaseConfigured && supabase) {
       try {
@@ -54,8 +103,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           });
           return;
         }
-      } catch {
-        // Fall through to local
+      } catch (err) {
+        console.warn('Could not fetch shop settings from Supabase:', err);
       }
     }
 
@@ -71,7 +120,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  // Load products
+  // Fetch products from Supabase or local storage
   const refreshProducts = useCallback(async () => {
     setIsLoading(true);
 
@@ -82,7 +131,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!error && data) {
+        if (error) {
+          console.error('Supabase error fetching products:', error.message);
+          setSupabaseError(error.message);
+        } else if (data) {
+          setSupabaseError(null);
           const formatted: Product[] = data.map((item) => ({
             id: item.id,
             name: item.name,
@@ -97,16 +150,17 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
             created_at: item.created_at,
           }));
           setProducts(formatted);
-          localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(formatted));
           setIsLoading(false);
           return;
         }
-      } catch (err) {
-        console.error('Error fetching products from Supabase:', err);
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : 'Unknown database error';
+        console.error('Supabase exception fetching products:', errMsg);
+        setSupabaseError(errMsg);
       }
     }
 
-    // Fallback to local storage or initial seed
+    // Local persistent mode fallback when Supabase is not configured or offline
     const local = localStorage.getItem(LOCAL_PRODUCTS_KEY);
     if (local) {
       try {
@@ -117,11 +171,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return;
         }
       } catch {
-        // fallback
+        // Fall back to seed
       }
     }
 
-    // Default seed
+    // Default initial verified products
     setProducts(INITIAL_PRODUCTS);
     localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(INITIAL_PRODUCTS));
     setIsLoading(false);
@@ -136,28 +190,21 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addProduct = async (
     productData: Omit<Product, 'id' | 'created_at'>
   ): Promise<{ success: boolean; error?: string }> => {
-    const newId = 'prod-' + Date.now();
-    const newProduct: Product = {
-      ...productData,
-      id: newId,
-      created_at: new Date().toISOString(),
-    };
-
     if (isSupabaseConfigured && supabase) {
       try {
         const { data, error } = await supabase
           .from('products')
           .insert([
             {
-              name: newProduct.name,
-              brand: newProduct.brand,
-              model_number: newProduct.model_number,
-              category: newProduct.category,
-              image_url: newProduct.image_url,
-              price: newProduct.price,
-              description: newProduct.description,
-              specifications: newProduct.specifications,
-              is_available: newProduct.is_available,
+              name: productData.name,
+              brand: productData.brand,
+              model_number: productData.model_number,
+              category: productData.category,
+              image_url: productData.image_url,
+              price: productData.price,
+              description: productData.description,
+              specifications: productData.specifications,
+              is_available: productData.is_available,
             },
           ])
           .select()
@@ -174,7 +221,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           model_number: data.model_number,
           category: data.category,
           image_url: data.image_url,
-          price: data.price,
+          price: data.price !== null ? Number(data.price) : null,
           description: data.description,
           specifications: data.specifications || [],
           is_available: data.is_available,
@@ -184,11 +231,20 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setProducts((prev) => [inserted, ...prev]);
         return { success: true };
       } catch (err: unknown) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown database error' };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'Database insertion error',
+        };
       }
     }
 
-    // Local mode
+    // Local Persistent Mode
+    const newProduct: Product = {
+      ...productData,
+      id: 'prod-' + Date.now(),
+      created_at: new Date().toISOString(),
+    };
+
     setProducts((prev) => {
       const updated = [newProduct, ...prev];
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(updated));
@@ -220,13 +276,24 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (error) {
           return { success: false, error: error.message };
         }
+
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+        );
+        return { success: true };
       } catch (err: unknown) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error during update' };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'Unknown error during update',
+        };
       }
     }
 
+    // Local Persistent Mode
     setProducts((prev) => {
-      const updated = prev.map((p) => (p.id === id ? { ...p, ...updates, updated_at: new Date().toISOString() } : p));
+      const updated = prev.map((p) =>
+        p.id === id ? { ...p, ...updates, updated_at: new Date().toISOString() } : p
+      );
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(updated));
       return updated;
     });
@@ -241,11 +308,18 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (error) {
           return { success: false, error: error.message };
         }
+
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        return { success: true };
       } catch (err: unknown) {
-        return { success: false, error: err instanceof Error ? err.message : 'Unknown error during deletion' };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'Unknown error during deletion',
+        };
       }
     }
 
+    // Local Persistent Mode
     setProducts((prev) => {
       const updated = prev.filter((p) => p.id !== id);
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(updated));
@@ -254,7 +328,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return { success: true };
   };
 
-  // Update Shop Settings (Address, etc.)
+  // Update Shop Settings (Address, Phone, Maps Link)
   const updateShopSettings = async (
     newSettings: Partial<ShopSettings>
   ): Promise<{ success: boolean; error?: string }> => {
@@ -262,7 +336,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     if (isSupabaseConfigured && supabase) {
       try {
-        // Upsert row with ID 1
         const { error } = await supabase.from('shop_settings').upsert({
           id: 1,
           shop_name: updated.shop_name,
@@ -277,80 +350,71 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (error) {
           return { success: false, error: error.message };
         }
+
+        setShopSettings(updated);
+        return { success: true };
       } catch (err: unknown) {
-        return { success: false, error: err instanceof Error ? err.message : 'Failed to update shop settings' };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'Failed to update shop settings',
+        };
       }
     }
 
+    // Local Persistent Mode
     setShopSettings(updated);
     localStorage.setItem(LOCAL_SETTINGS_KEY, JSON.stringify(updated));
     return { success: true };
   };
 
-  // Upload Product Image
+  // Upload Product Image with canvas compression & Supabase Storage
   const uploadProductImage = async (file: File): Promise<{ url?: string; error?: string }> => {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+    try {
+      // 1. Client-side compression
+      const compressedBlob = await compressImageToBlob(file, 1000);
+
+      // 2. Upload to Supabase Storage if configured
+      if (isSupabaseConfigured && supabase) {
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.jpg`;
         const filePath = `products/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, compressedBlob, {
+            contentType: 'image/jpeg',
+            cacheControl: '3600',
+            upsert: false,
+          });
 
         if (uploadError) {
-          console.warn('Storage upload error, falling back to base64:', uploadError.message);
-        } else {
-          const { data: publicData } = supabase.storage.from('product-images').getPublicUrl(filePath);
-          if (publicData?.publicUrl) {
-            return { url: publicData.publicUrl };
-          }
+          return {
+            error: `Supabase Storage upload failed: ${uploadError.message}. Ensure the 'product-images' bucket exists and RLS allows admin uploads.`,
+          };
         }
-      } catch (err) {
-        console.warn('Supabase storage error:', err);
+
+        const { data: publicData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        if (!publicData?.publicUrl) {
+          return { error: 'Failed to retrieve public URL from Supabase Storage.' };
+        }
+
+        return { url: publicData.publicUrl };
       }
-    }
 
-    // Local / Browser base64 fallback with client-side canvas compression for high reliability
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 800;
-
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            resolve({ url: dataUrl });
-          } else {
-            resolve({ url: e.target?.result as string });
-          }
-        };
-        img.onerror = () => resolve({ error: 'Failed to process image file.' });
-        img.src = e.target?.result as string;
+      // 3. Fallback for Local Mode (Supabase not configured)
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ url: reader.result as string });
+        reader.onerror = () => resolve({ error: 'Failed to read compressed file.' });
+        reader.readAsDataURL(compressedBlob);
+      });
+    } catch (err: unknown) {
+      return {
+        error: err instanceof Error ? err.message : 'Failed to process and upload image.',
       };
-      reader.onerror = () => resolve({ error: 'Failed to read file.' });
-      reader.readAsDataURL(file);
-    });
+    }
   };
 
   const resetToInitialProducts = () => {
@@ -364,6 +428,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         products,
         isLoading,
         shopSettings,
+        isUsingSupabase: isSupabaseConfigured,
+        supabaseError,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -385,4 +451,3 @@ export const useProducts = () => {
   }
   return context;
 };
-

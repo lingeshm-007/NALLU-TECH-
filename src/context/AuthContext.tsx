@@ -3,7 +3,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
-  user: User | { email: string; id: string } | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   isUsingSupabase: boolean;
@@ -13,21 +13,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LOCAL_ADMIN_STORAGE_KEY = 'nallu_tech_admin_session';
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | { email: string; id: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (isSupabaseConfigured && supabase) {
-      // 1. Check active Supabase session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      });
+      // 1. Check existing active Supabase session
+      supabase.auth
+        .getSession()
+        .then(({ data: { session }, error }) => {
+          if (error) {
+            console.error('Error fetching Supabase session:', error.message);
+          }
+          setUser(session?.user ?? null);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error('Unexpected error loading auth session:', err);
+          setIsLoading(false);
+        });
 
-      // 2. Listen for auth changes
+      // 2. Subscribe to auth changes (sign in, sign out, token refresh)
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -35,18 +42,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
       });
 
-      return () => subscription.unsubscribe();
+      return () => {
+        subscription.unsubscribe();
+      };
     } else {
-      // Offline / Local mock admin session fallback
-      const savedSession = localStorage.getItem(LOCAL_ADMIN_STORAGE_KEY);
-      if (savedSession) {
-        try {
-          const parsed = JSON.parse(savedSession);
-          setUser(parsed);
-        } catch {
-          localStorage.removeItem(LOCAL_ADMIN_STORAGE_KEY);
-        }
-      }
+      // When Supabase is not configured, no local mock login credentials are accepted.
+      setUser(null);
       setIsLoading(false);
     }
   }, []);
@@ -54,45 +55,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<{ error?: string }> => {
     setIsLoading(true);
 
-    if (isSupabaseConfigured && supabase) {
+    if (!isSupabaseConfigured || !supabase) {
+      setIsLoading(false);
+      return {
+        error:
+          'Supabase credentials are not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your local .env file before signing in.',
+      };
+    }
+
+    try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
       });
 
       setIsLoading(false);
+
       if (error) {
         return { error: error.message };
       }
+
       setUser(data.user);
       return {};
-    } else {
-      // Local fallback mode: accepts configured admin credentials
-      const normalizedEmail = email.trim().toLowerCase();
-      if (
-        (normalizedEmail === 'nallutech07@gmail.com' || normalizedEmail === 'nallutech07') &&
-        password === 'Nallutech@1234'
-      ) {
-        const mockUser = { id: 'admin-local-1', email: 'nallutech07@gmail.com' };
-        localStorage.setItem(LOCAL_ADMIN_STORAGE_KEY, JSON.stringify(mockUser));
-        setUser(mockUser);
-        setIsLoading(false);
-        return {};
-      } else {
-        setIsLoading(false);
-        return {
-          error: 'Invalid email or password. Please check your credentials and try again.',
-        };
-      }
+    } catch (err: unknown) {
+      setIsLoading(false);
+      return {
+        error: err instanceof Error ? err.message : 'An unexpected error occurred during authentication.',
+      };
     }
   };
 
   const logout = async () => {
     setIsLoading(true);
     if (isSupabaseConfigured && supabase) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.error('Error during Supabase signOut:', err);
+      }
     }
-    localStorage.removeItem(LOCAL_ADMIN_STORAGE_KEY);
     setUser(null);
     setIsLoading(false);
   };
@@ -120,4 +121,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
