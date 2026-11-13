@@ -86,39 +86,51 @@ The optimized bundle will be created in the `dist/` directory.
    ```
    *(Or click "Admin Login" in the top bar or footer).*
 
-2. **Default Local Development Credentials:**
-   - **Email:** `admin@nallutech.com`
-   - **Password:** `nallu@1234`
+2. **Admin Credentials:**
+   - **Email / ID:** `nallutech07@gmail.com`
+   - **Password:** `Nallutech@1234`
 
 ---
 
-## 🗄️ Supabase Backend & Database Setup (Production)
+## 🗄️ Supabase Backend & Database Setup (Cloud Connection)
 
-To connect your own cloud database and Supabase authentication:
+To connect your Supabase project for real-time cloud data storage:
 
-### Step 1: Create a Supabase Project
-1. Go to [supabase.com](https://supabase.com) and create a free project.
-2. Note your **Project URL** and **anon public key** from `Project Settings > API`.
+### Step 1: Create or Open Your Supabase Project
+1. Go to [supabase.com](https://supabase.com) and sign in.
+2. Create a new project (e.g. `NALLU-TECH`) in region **India (Mumbai)**.
+3. Once created, go to **Project Settings &rarr; Data API** (or API).
+4. Copy your **Project URL** and **`anon` `public` key**.
 
-### Step 2: Run Database Schema
-1. In your Supabase dashboard, go to the **SQL Editor**.
-2. Open the file `supabase_schema.sql` included in this repository.
-3. Paste the contents into the SQL Editor and click **Run**.  
-   *This creates the `products` table, `shop_settings` table, `product-images` storage bucket, and configures Row Level Security (RLS) policies.*
-
-### Step 3: Create First Admin User
-1. In Supabase Dashboard, go to **Authentication > Users**.
-2. Click **Add User** &rarr; **Create User**.
-3. Enter your admin email (e.g. `admin@nallutech.com`) and a strong password.
-4. Confirm email creation.
-
-### Step 4: Configure Environment Variables
-Create or edit `.env` in the root folder:
+### Step 2: Configure Environment Variables
+Open the `.env` file in the root folder of this project:
 ```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-actual-anon-key-here
 ```
-Re-run `npm run build` or `npm run dev`. Your website will now synchronize with Supabase in real-time.
+*(Make sure to use the safe `anon` `public` key, NEVER the `service_role` secret key!)*
+
+### Step 3: Run Database Schema & Storage Setup
+1. In your Supabase Dashboard, click **SQL Editor** (`>_`) in the left sidebar.
+2. Click **New Query**.
+3. Open `supabase_schema.sql` from this repository, copy all contents, paste it into the SQL Editor, and click **Run**.
+   *This automatically creates:*
+   - `public.products` table with all columns and JSONB specifications
+   - `public.shop_settings` table with verified NALLU TECH contact info
+   - Row Level Security (RLS) policies ensuring public visitors can only view products, while authenticated admins can create, update, and delete them
+   - `product-images` storage bucket with public read and authenticated write policies
+   - All 12 initial verified products with photos pre-seeded
+
+### Step 4: Create Admin User in Supabase Authentication
+1. In Supabase Dashboard, navigate to **Authentication &rarr; Users**.
+2. Click **Add User** &rarr; **Create User**.
+3. Enter:
+   - **User Email:** `nallutech07@gmail.com`
+   - **Password:** `Nallutech@1234`
+   - Turn **Auto Confirm User?** to **ON** (so no email confirmation is required).
+4. Click **Create User**.
+
+You can now sign in at `/admin/login`. All products, prices, edits, and uploaded images will immediately persist in your live Supabase cloud database.
 
 ---
 

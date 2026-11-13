@@ -82,8 +82,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!error && data && data.length > 0) {
-          // Normalize data
+        if (!error && data) {
           const formatted: Product[] = data.map((item) => ({
             id: item.id,
             name: item.name,
