@@ -1,17 +1,8 @@
 -- ==============================================================================
 -- NALLU TECH - Production Supabase Database Schema, RLS & Storage Setup
 -- ==============================================================================
--- Instructions:
--- 1. Open your Supabase Dashboard: https://supabase.com/dashboard
--- 2. Select your project -> Click "SQL Editor" in the left sidebar
--- 3. Click "New Query", paste this entire script, and click "RUN"
---
--- After running this schema:
--- Create your admin user in "Authentication" -> "Users" (e.g. nallutech07@gmail.com).
--- To explicitly authorize the admin role, run in SQL Editor:
---   UPDATE auth.users
---   SET raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'::jsonb
---   WHERE email = 'nallutech07@gmail.com';
+-- Compatible with all Supabase SQL Editor versions & parser engines.
+-- Safe to execute: uses IF NOT EXISTS and ON CONFLICT DO NOTHING (never deletes existing data).
 -- ==============================================================================
 
 -- 1. Create Products Table
@@ -62,88 +53,91 @@ VALUES (
     ''
 ) ON CONFLICT (id) DO NOTHING;
 
--- 3. Automatic updated_at Trigger Function
-CREATE OR REPLACE FUNCTION public.handle_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = timezone('utc'::text, now());
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- 3. Enable Row Level Security (RLS)
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shop_settings ENABLE ROW LEVEL SECURITY;
 
-DROP TRIGGER IF EXISTS trigger_products_updated_at ON public.products;
-CREATE TRIGGER trigger_products_updated_at
-BEFORE UPDATE ON public.products
-FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+-- 4. Products Row Level Security Policies
+-- Public visitors: Read-only access to all products
+DROP POLICY IF EXISTS "Public read access for products" ON public.products;
+CREATE POLICY "Public read access for products"
+    ON public.products FOR SELECT
+    USING (true);
 
-DROP TRIGGER IF EXISTS trigger_shop_settings_updated_at ON public.shop_settings;
-CREATE TRIGGER trigger_shop_settings_updated_at
-BEFORE UPDATE ON public.shop_settings
-FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
-
--- 4. Admin Security Helper Function
--- Restricts admin modifications to authenticated users matching the store admin email or having role 'admin'
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-    RETURN (
+-- Authenticated Admins: Insert, Update, and Delete products
+-- Strictly restricted to verified admin account or user with role 'admin'
+DROP POLICY IF EXISTS "Admin insert access for products" ON public.products;
+CREATE POLICY "Admin insert access for products"
+    ON public.products FOR INSERT
+    WITH CHECK (
         auth.role() = 'authenticated' AND (
             LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
             OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
             OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
         )
     );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- 5. Enable Row Level Security (RLS)
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.shop_settings ENABLE ROW LEVEL SECURITY;
-
--- 6. Products RLS Policies
--- Public visitors can only view products
-DROP POLICY IF EXISTS "Public read access for products" ON public.products;
-CREATE POLICY "Public read access for products"
-    ON public.products FOR SELECT
-    USING (true);
-
--- Only explicitly verified admins can create, update, and delete products
-DROP POLICY IF EXISTS "Admin insert access for products" ON public.products;
-CREATE POLICY "Admin insert access for products"
-    ON public.products FOR INSERT
-    WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin update access for products" ON public.products;
 CREATE POLICY "Admin update access for products"
     ON public.products FOR UPDATE
-    USING (public.is_admin())
-    WITH CHECK (public.is_admin());
+    USING (
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    )
+    WITH CHECK (
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
 
 DROP POLICY IF EXISTS "Admin delete access for products" ON public.products;
 CREATE POLICY "Admin delete access for products"
     ON public.products FOR DELETE
-    USING (public.is_admin());
+    USING (
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
 
--- 7. Shop Settings RLS Policies
--- Public visitors can read shop settings
+-- 5. Shop Settings Row Level Security Policies
+-- Public visitors: Read-only access to shop details
 DROP POLICY IF EXISTS "Public read access for shop settings" ON public.shop_settings;
 CREATE POLICY "Public read access for shop settings"
     ON public.shop_settings FOR SELECT
     USING (true);
 
--- Only explicitly verified admins can update shop settings
+-- Authenticated Admins: Write access to shop details
 DROP POLICY IF EXISTS "Admin write access for shop settings" ON public.shop_settings;
 CREATE POLICY "Admin write access for shop settings"
     ON public.shop_settings FOR ALL
-    USING (public.is_admin())
-    WITH CHECK (public.is_admin());
+    USING (
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    )
+    WITH CHECK (
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
 
--- 8. Storage Bucket for Product Images
+-- 6. Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
 
--- Storage RLS: Public read, admin-only upload and delete
+-- Storage RLS: Public read, admin-only upload, update, and delete
 DROP POLICY IF EXISTS "Public read access for product images" ON storage.objects;
 CREATE POLICY "Public read access for product images"
     ON storage.objects FOR SELECT
@@ -152,20 +146,48 @@ CREATE POLICY "Public read access for product images"
 DROP POLICY IF EXISTS "Admin upload access for product images" ON storage.objects;
 CREATE POLICY "Admin upload access for product images"
     ON storage.objects FOR INSERT
-    WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
+    WITH CHECK (
+        bucket_id = 'product-images' AND
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
 
 DROP POLICY IF EXISTS "Admin update access for product images" ON storage.objects;
 CREATE POLICY "Admin update access for product images"
     ON storage.objects FOR UPDATE
-    USING (bucket_id = 'product-images' AND public.is_admin())
-    WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
+    USING (
+        bucket_id = 'product-images' AND
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    )
+    WITH CHECK (
+        bucket_id = 'product-images' AND
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
 
 DROP POLICY IF EXISTS "Admin delete access for product images" ON storage.objects;
 CREATE POLICY "Admin delete access for product images"
     ON storage.objects FOR DELETE
-    USING (bucket_id = 'product-images' AND public.is_admin());
+    USING (
+        bucket_id = 'product-images' AND
+        auth.role() = 'authenticated' AND (
+            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+        )
+    );
 
--- 9. Seed Initial Verified Products (Safe: ON CONFLICT DO NOTHING)
+-- 7. Seed Initial Verified Products (Safe: ON CONFLICT DO NOTHING)
 INSERT INTO public.products (name, brand, model_number, category, image_url, price, description, specifications, is_available)
 VALUES 
 ('Amaron PRO DIN65 Car Battery', 'Amaron', 'AAM-PR-0DIN65', 'Car Batteries', '/images/products/car-amaron.jpg', 7499, 'High performance zero-maintenance car battery engineered with patented Silven X alloy technology for extreme heat resistance and long service life.', '[{"key": "Capacity", "value": "65 Ah"}, {"key": "Voltage", "value": "12V"}, {"key": "Warranty", "value": "66 Months (36F + 30P)"}, {"key": "Technology", "value": "Silven X Alloy"}, {"key": "Maintenance", "value": "Zero Maintenance"}]'::jsonb, true),

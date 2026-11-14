@@ -156,33 +156,6 @@ CREATE TABLE IF NOT EXISTS public.shop_settings (
 
 INSERT INTO public.shop_settings (id, shop_name) VALUES (1, 'NALLU TECH') ON CONFLICT (id) DO NOTHING;
 
-CREATE OR REPLACE FUNCTION public.handle_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = timezone('utc'::text, now());
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trigger_products_updated_at ON public.products;
-CREATE TRIGGER trigger_products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
-
-DROP TRIGGER IF EXISTS trigger_shop_settings_updated_at ON public.shop_settings;
-CREATE TRIGGER trigger_shop_settings_updated_at BEFORE UPDATE ON public.shop_settings FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
-
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-    RETURN (
-        auth.role() = 'authenticated' AND (
-            LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
-            OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
-            OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
-        )
-    );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shop_settings ENABLE ROW LEVEL SECURITY;
 
@@ -190,19 +163,61 @@ DROP POLICY IF EXISTS "Public read access for products" ON public.products;
 CREATE POLICY "Public read access for products" ON public.products FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin insert access for products" ON public.products;
-CREATE POLICY "Admin insert access for products" ON public.products FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Admin insert access for products" ON public.products FOR INSERT
+WITH CHECK (
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);
 
 DROP POLICY IF EXISTS "Admin update access for products" ON public.products;
-CREATE POLICY "Admin update access for products" ON public.products FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin update access for products" ON public.products FOR UPDATE
+USING (
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+)
+WITH CHECK (
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);
 
 DROP POLICY IF EXISTS "Admin delete access for products" ON public.products;
-CREATE POLICY "Admin delete access for products" ON public.products FOR DELETE USING (public.is_admin());
+CREATE POLICY "Admin delete access for products" ON public.products FOR DELETE
+USING (
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);
 
 DROP POLICY IF EXISTS "Public read access for shop settings" ON public.shop_settings;
 CREATE POLICY "Public read access for shop settings" ON public.shop_settings FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin write access for shop settings" ON public.shop_settings;
-CREATE POLICY "Admin write access for shop settings" ON public.shop_settings FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin write access for shop settings" ON public.shop_settings FOR ALL
+USING (
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+)
+WITH CHECK (
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);
 
 INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true) ON CONFLICT (id) DO UPDATE SET public = true;
 
@@ -210,13 +225,45 @@ DROP POLICY IF EXISTS "Public read access for product images" ON storage.objects
 CREATE POLICY "Public read access for product images" ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
 
 DROP POLICY IF EXISTS "Admin upload access for product images" ON storage.objects;
-CREATE POLICY "Admin upload access for product images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
+CREATE POLICY "Admin upload access for product images" ON storage.objects FOR INSERT
+WITH CHECK (
+    bucket_id = 'product-images' AND
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);
 
 DROP POLICY IF EXISTS "Admin update access for product images" ON storage.objects;
-CREATE POLICY "Admin update access for product images" ON storage.objects FOR UPDATE USING (bucket_id = 'product-images' AND public.is_admin()) WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
+CREATE POLICY "Admin update access for product images" ON storage.objects FOR UPDATE
+USING (
+    bucket_id = 'product-images' AND
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+)
+WITH CHECK (
+    bucket_id = 'product-images' AND
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);
 
 DROP POLICY IF EXISTS "Admin delete access for product images" ON storage.objects;
-CREATE POLICY "Admin delete access for product images" ON storage.objects FOR DELETE USING (bucket_id = 'product-images' AND public.is_admin());`;
+CREATE POLICY "Admin delete access for product images" ON storage.objects FOR DELETE
+USING (
+    bucket_id = 'product-images' AND
+    auth.role() = 'authenticated' AND (
+        LOWER(auth.jwt() ->> 'email') = 'nallutech07@gmail.com'
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
+    )
+);`;
     navigator.clipboard.writeText(sql);
     setCopiedSchema(true);
     addToast('success', 'Production SQL schema copied to clipboard.');
