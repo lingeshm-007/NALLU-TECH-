@@ -263,7 +263,11 @@ USING (
         OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
         OR (auth.jwt() -> 'user_metadata' ->> 'is_admin')::boolean = true
     )
-);`;
+);
+
+GRANT ALL ON TABLE public.products TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.shop_settings TO anon, authenticated, service_role;
+NOTIFY pgrst, 'reload schema';`;
     navigator.clipboard.writeText(sql);
     setCopiedSchema(true);
     addToast('success', 'Production SQL schema copied to clipboard.');

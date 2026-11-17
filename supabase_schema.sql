@@ -203,3 +203,9 @@ VALUES
 ('Microtek Luxe 1400 Pure Sine Wave Inverter', 'Microtek', 'Luxe 1400', 'Inverters', '/images/products/inverter-microtek.jpg', 7600, 'Modern aesthetic pure sine wave home UPS featuring micro-controller based intelligent multistage battery charging and overload protection.', '[{"key": "Capacity / VA", "value": "1100 VA"}, {"key": "Rated Output Power", "value": "924 Watts"}, {"key": "Waveform", "value": "Pure Sine Wave"}, {"key": "Warranty", "value": "24 Months"}, {"key": "Technology", "value": "DSP Based Intelli-Pure Sine Wave"}]'::jsonb, true),
 ('Heavy Duty Modular Dual Battery Trolley / Stand', 'NALLU TECH Essentials', 'NT-TR-02', 'Other Battery Products', '/images/products/battery-trolley.jpg', 1850, 'Sturdy acid-proof composite trolley with castor wheels designed for neat housing of inverter and tubular battery setup with ventilation.', '[{"key": "Material", "value": "Acid Resistant Reinforced Polymer"}, {"key": "Mobility", "value": "5 Heavy Duty Castor Wheels"}, {"key": "Compatibility", "value": "Single / Double Tubular Batteries"}, {"key": "Ventilation", "value": "Rear and Side Air Slits"}]'::jsonb, true)
 ON CONFLICT DO NOTHING;
+
+-- 8. Grant Table Permissions & Reload PostgREST API Schema Cache
+GRANT ALL ON TABLE public.products TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.shop_settings TO anon, authenticated, service_role;
+NOTIFY pgrst, 'reload schema';
+
