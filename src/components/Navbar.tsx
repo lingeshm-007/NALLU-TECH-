@@ -32,7 +32,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
               <Shield className="w-3.5 h-3.5" />
-              <span>{shopSettings.experience || '15+ Years of Experience'}</span>
+              <span>{shopSettings.experience?.replace('15+', '20+') || '20+ Years of Experience'}</span>
             </span>
             <span className="hidden md:inline-block text-slate-400">|</span>
             <span className="hidden md:inline-block text-slate-300">

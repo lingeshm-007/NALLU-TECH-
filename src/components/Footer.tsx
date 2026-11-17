@@ -29,13 +29,13 @@ export const Footer: React.FC = () => {
             </div>
 
             <p className="text-sm text-slate-400 leading-relaxed">
-              Powering every journey, home, and business. With 15+ years of trusted experience, we provide
+              Powering every journey, home, and business. With 20+ years of trusted experience, we provide
               genuine batteries, high-performance inverters, and professional UPS systems.
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700/80 text-xs text-emerald-400 font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{shopSettings.experience || '15+ Years of Experience'}</span>
+              <span>{shopSettings.experience?.replace('15+', '20+') || '20+ Years of Experience'}</span>
             </div>
           </div>
 

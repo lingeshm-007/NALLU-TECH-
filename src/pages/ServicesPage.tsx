@@ -58,7 +58,7 @@ export const ServicesPage: React.FC = () => {
                 Our Work Ethic & Service Standard
               </h2>
               <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                With 15+ years of hands-on expertise, every service job at NALLU TECH begins with honest
+                With 20+ years of hands-on expertise, every service job at NALLU TECH begins with honest
                 diagnostics. If a battery is healthy and merely needs recharging, we will never push for an
                 unnecessary replacement.
               </p>

@@ -1,7 +1,7 @@
 # NALLU TECH 🔋 | Business Website & Cloud Product Management System
 
 > **"Powering Every Journey, Every Home."**  
-> **15+ Years of Experience &bull; Trusted Battery Solutions**
+> **20+ Years of Experience &bull; Trusted Battery Solutions**
 
 A modern, responsive, high-performance business website and cloud-backed administration portal built for **NALLU TECH**, a premier battery, UPS, and inverter enterprise. The application features a fast public-facing storefront and a private, secure Admin Console for managing products, categories, pricing, specifications, and shop settings backed by **Supabase PostgreSQL & Cloud Storage**.
 
@@ -10,7 +10,7 @@ A modern, responsive, high-performance business website and cloud-backed adminis
 ## 🌟 Key Features
 
 ### Public Website
-- **Hero & Brand Highlights:** Showcases 15+ years of verified industry experience, genuine warranty guarantees, and immediate contact shortcuts.
+- **Hero & Brand Highlights:** Showcases 20+ years of verified industry experience, genuine warranty guarantees, and immediate contact shortcuts.
 - **9 Specialized Product Categories:**
   1. Car Batteries
   2. Bike Batteries
@@ -155,7 +155,7 @@ This project is fully configured for zero-configuration static site deployment o
 | Item | Details |
 | :--- | :--- |
 | **Business Name** | NALLU TECH |
-| **Experience** | 15+ Years of Experience |
+| **Experience** | 20+ Years of Experience |
 | **Brand Message** | Trusted Battery Solutions |
 | **Direct Phone** | [+91 8248949759](tel:+918248949759) |
 | **WhatsApp Contact** | [+91 8248949759](https://wa.me/918248949759) |

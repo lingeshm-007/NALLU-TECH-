@@ -38,7 +38,7 @@ export const LocationSection: React.FC = () => {
                   {shopSettings.shop_name || 'NALLU TECH'}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-1">
-                  {shopSettings.tagline || 'Trusted Battery Solutions'} &bull; {shopSettings.experience || '15+ Years of Experience'}
+                  {shopSettings.tagline || 'Trusted Battery Solutions'} &bull; {shopSettings.experience?.replace('15+', '20+') || '20+ Years of Experience'}
                 </p>
               </div>
 

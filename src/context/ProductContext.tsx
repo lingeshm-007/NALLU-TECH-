@@ -95,7 +95,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           setShopSettings({
             shop_name: data.shop_name || DEFAULT_SETTINGS.shop_name,
             tagline: data.tagline || DEFAULT_SETTINGS.tagline,
-            experience: data.experience || DEFAULT_SETTINGS.experience,
+            experience: (data.experience || DEFAULT_SETTINGS.experience).replace('15+', '20+'),
             phone: data.phone || DEFAULT_SETTINGS.phone,
             whatsapp: data.whatsapp || DEFAULT_SETTINGS.whatsapp,
             maps_url: data.maps_url || DEFAULT_SETTINGS.maps_url,

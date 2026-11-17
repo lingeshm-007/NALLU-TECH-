@@ -33,7 +33,7 @@ const SLIDES = [
   },
   {
     image: '/images/slider/slide-3.jpg',
-    title: '15+ Years of Customer Trust',
+    title: '20+ Years of Customer Trust',
     subtitle: 'Meet Our Shop & Dedicated Team',
     badge: 'Owner Verified',
     position: 'object-[center_20%]',
@@ -83,7 +83,7 @@ export const Hero: React.FC = () => {
             <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs">
                 <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                {shopSettings.experience || '15+ Years of Experience'}
+                {shopSettings.experience?.replace('15+', '20+') || '20+ Years of Experience'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-emerald-300 border border-slate-800 shadow-2xs">
                 <Zap className="w-3.5 h-3.5 text-emerald-400" />

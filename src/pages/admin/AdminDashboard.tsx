@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS public.shop_settings (
     id INT PRIMARY KEY DEFAULT 1,
     shop_name TEXT NOT NULL DEFAULT 'NALLU TECH',
     tagline TEXT NOT NULL DEFAULT 'Trusted Battery Solutions',
-    experience TEXT NOT NULL DEFAULT '15+ Years of Experience',
+    experience TEXT NOT NULL DEFAULT '20+ Years of Experience',
     phone TEXT NOT NULL DEFAULT '+91 8248949759',
     whatsapp TEXT NOT NULL DEFAULT '918248949759',
     maps_url TEXT NOT NULL DEFAULT 'https://www.google.com/maps/place/Nallu+Tech,/@11.5416413,79.1292909,488m/data=!3m1!1e3!4m6!3m5!1s0x3bab4721f742a30b:0xe674301feac43ab4!8m2!3d11.541912!4d79.1315204!16s%2Fg%2F11c7pc27g7?entry=ttu',
