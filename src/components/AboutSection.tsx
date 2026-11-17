@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Clock, BatteryMedium, Cpu, CheckCircle } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 
+const ABOUT_SLIDES = [
+  {
+    src: '/images/about-owner.jpg',
+    alt: 'NALLU TECH Founder & Technical Lead',
+  },
+  {
+    src: '/images/about-service.jpg',
+    alt: 'NALLU TECH Inverter Testing & Precision Diagnostics',
+  },
+];
+
 export const AboutSection: React.FC = () => {
   const { shopSettings } = useProducts();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % ABOUT_SLIDES.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <section className="py-16 sm:py-20 bg-white">
@@ -11,16 +30,36 @@ export const AboutSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Visual Banner */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-gray-200 shadow-xl">
-              <img
-                src="/images/about-owner.jpg"
-                alt="NALLU TECH Founder & Technical Lead"
-                className="w-full h-80 sm:h-96 lg:h-[420px] object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none"></div>
+            <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-gray-200 shadow-xl h-80 sm:h-96 lg:h-[420px]">
+              {ABOUT_SLIDES.map((slide, index) => (
+                <img
+                  key={slide.src}
+                  src={slide.src}
+                  alt={slide.alt}
+                  className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-0' : 'opacity-0 -z-10 pointer-events-none'
+                  }`}
+                />
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none z-10"></div>
+
+              {/* Slide indicator dots */}
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/20">
+                {ABOUT_SLIDES.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setCurrentSlide(idx)}
+                    aria-label={`Slide ${idx + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      idx === currentSlide ? 'w-4 bg-emerald-400' : 'w-1.5 bg-white/60 hover:bg-white'
+                    }`}
+                  />
+                ))}
+              </div>
 
               {/* Float badge */}
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/95 backdrop-blur-md border border-gray-200/80 shadow-lg text-slate-900">
+              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/95 backdrop-blur-md border border-gray-200/80 shadow-lg text-slate-900 z-20">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shrink-0">
                     20+
