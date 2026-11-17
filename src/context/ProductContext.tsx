@@ -31,7 +31,7 @@ const DEFAULT_SETTINGS: ShopSettings = {
   phone: PHONE_NUMBER,
   whatsapp: WHATSAPP_NUMBER,
   maps_url: GOOGLE_MAPS_URL,
-  address: '',
+  address: `Nallu Tech House, No: 239/4,\nAyyanar School (Opp), Sorkapuri Nagar,\nVeppur (Po) & (Tk), Cuddalore (Dt),\nPin - 606 304,\nTamil Nadu, South India.`,
 };
 
 // Client-side canvas compression utility to reduce file size before uploading

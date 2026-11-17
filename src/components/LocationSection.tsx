@@ -42,25 +42,21 @@ export const LocationSection: React.FC = () => {
                 </p>
               </div>
 
-              {/* Editable Shop Address */}
+              {/* Shop Address */}
               <div className="pt-3 border-t border-gray-200/80">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                   Shop Address
                 </span>
-                {shopSettings.address && shopSettings.address.trim().length > 0 ? (
-                  <p className="text-sm font-medium text-slate-800 leading-relaxed whitespace-pre-line">
-                    {shopSettings.address}
+                <div className="p-3.5 rounded-lg bg-emerald-50/60 border border-emerald-100 text-xs sm:text-sm text-slate-700">
+                  <p className="font-bold text-slate-900 mb-1">
+                    NALLU TECH
                   </p>
-                ) : (
-                  <div className="p-3 rounded-lg bg-emerald-50/60 border border-emerald-100 text-xs text-slate-600">
-                    <p className="font-medium text-slate-800">
-                      Located at the verified Google Maps pin below.
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      (Address details can be configured directly in Admin Dashboard &rarr; Settings)
-                    </p>
-                  </div>
-                )}
+                  <p className="leading-relaxed text-slate-700 whitespace-pre-line">
+                    {shopSettings.address && shopSettings.address.trim().length > 0
+                      ? shopSettings.address
+                      : `Nallu Tech House, No: 239/4,\nAyyanar School (Opp), Sorkapuri Nagar,\nVeppur (Po) & (Tk), Cuddalore (Dt),\nPin - 606 304,\nTamil Nadu, South India.`}
+                  </p>
+                </div>
               </div>
             </div>
 
