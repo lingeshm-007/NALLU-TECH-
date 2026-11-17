@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Phone, MessageCircle, Menu, X, BatteryCharging, Shield, User, LogOut } from 'lucide-react';
+import { Phone, MessageCircle, Menu, X, Shield, User, LogOut } from 'lucide-react';
 import { PHONE_NUMBER, getWhatsAppUrl } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 import { useProducts } from '../context/ProductContext';
@@ -82,18 +82,12 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group focus:outline-hidden">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center text-white shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform duration-200">
-              <BatteryCharging className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
-                NALLU TECH
-              </span>
-              <p className="text-[11px] font-semibold text-emerald-700 tracking-wider uppercase -mt-0.5">
-                Battery & Inverter Solutions
-              </p>
-            </div>
+          <Link to="/" className="flex items-center focus:outline-hidden group py-1">
+            <img
+              src="/images/nallutech-logo.png"
+              alt="NALLUTECH"
+              className="h-14 sm:h-16 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+            />
           </Link>
 
           {/* Desktop Nav Links */}

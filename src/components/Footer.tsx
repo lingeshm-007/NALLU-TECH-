@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BatteryCharging, Phone, MessageCircle, MapPin, ExternalLink, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, ExternalLink, ShieldCheck, ChevronRight } from 'lucide-react';
 import { PHONE_NUMBER, GOOGLE_MAPS_URL, getWhatsAppUrl } from '../lib/utils';
 import { useProducts } from '../context/ProductContext';
 import { PRODUCT_CATEGORIES } from '../types';
@@ -15,16 +15,17 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand Col */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md">
-                <BatteryCharging className="w-6 h-6" />
-              </div>
-              <div>
-                <span className="text-xl font-black tracking-tight text-white">NALLU TECH</span>
-                <p className="text-[11px] font-semibold text-emerald-400 tracking-wider uppercase">
-                  {shopSettings.tagline || 'Trusted Battery Solutions'}
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Link to="/" className="inline-block focus:outline-hidden group">
+                <img
+                  src="/images/nallutech-logo.png"
+                  alt="NALLUTECH"
+                  className="h-14 w-auto object-contain rounded-lg bg-white p-1.5 shadow-sm transition-transform duration-200 group-hover:scale-105"
+                />
+              </Link>
+              <p className="text-[11px] font-semibold text-emerald-400 tracking-wider uppercase">
+                {shopSettings.tagline || 'Trusted Battery Solutions'}
+              </p>
             </div>
 
             <p className="text-sm text-slate-400 leading-relaxed">
