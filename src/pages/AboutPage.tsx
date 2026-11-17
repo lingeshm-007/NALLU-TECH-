@@ -12,7 +12,7 @@ export const AboutPage: React.FC = () => {
       <section className="bg-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-7xl mx-auto text-center max-w-3xl">
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-800 mb-3 inline-block">
-            {shopSettings.experience || '15+ Years of Experience'}
+            {shopSettings.experience?.replace('15+', '20+') || '20+ Years of Experience'}
           </span>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white mt-2">
             About NALLU TECH

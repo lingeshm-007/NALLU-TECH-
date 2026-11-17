@@ -27,7 +27,7 @@ const LOCAL_SETTINGS_KEY = 'nallu_tech_shop_settings_v1';
 const DEFAULT_SETTINGS: ShopSettings = {
   shop_name: 'NALLU TECH',
   tagline: 'Trusted Battery Solutions',
-  experience: '15+ Years of Experience',
+  experience: '20+ Years of Experience',
   phone: PHONE_NUMBER,
   whatsapp: WHATSAPP_NUMBER,
   maps_url: GOOGLE_MAPS_URL,
@@ -111,7 +111,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const saved = localStorage.getItem(LOCAL_SETTINGS_KEY);
     if (saved) {
       try {
-        setShopSettings(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (parsed.experience && parsed.experience.includes('15+')) {
+          parsed.experience = parsed.experience.replace('15+', '20+');
+        }
+        setShopSettings(parsed);
       } catch {
         setShopSettings(DEFAULT_SETTINGS);
       }

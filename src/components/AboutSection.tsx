@@ -13,17 +13,17 @@ export const AboutSection: React.FC = () => {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-gray-200 shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
-                alt="Battery and Inverter Workshop"
-                className="w-full h-80 sm:h-96 object-cover opacity-85"
+                src="/images/about-owner.jpg"
+                alt="NALLU TECH Founder & Technical Lead"
+                className="w-full h-80 sm:h-96 lg:h-[420px] object-cover object-center"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/30 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none"></div>
 
               {/* Float badge */}
               <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/95 backdrop-blur-md border border-gray-200/80 shadow-lg text-slate-900">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shrink-0">
-                    15+
+                    20+
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">Years in Business</h4>
@@ -49,7 +49,7 @@ export const AboutSection: React.FC = () => {
 
             {/* Exactly as requested in prompt */}
             <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal bg-emerald-50/40 p-5 rounded-xl border border-emerald-100">
-              “NALLU TECH provides battery, UPS and inverter solutions for different customer needs. With 15+ years
+              “NALLU TECH provides battery, UPS and inverter solutions for different customer needs. With 20+ years
               of experience, we focus on providing trusted products and reliable battery-related services for
               homes, vehicles and businesses.”
             </p>
@@ -70,7 +70,7 @@ export const AboutSection: React.FC = () => {
               <div className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
                   <Clock className="w-4 h-4 text-emerald-600" />
-                  <span>{shopSettings.experience || '15+ Years Experience'}</span>
+                  <span>{shopSettings.experience?.replace('15+', '20+') || '20+ Years of Experience'}</span>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
                   In-depth practical diagnostic knowledge across automotive electricals, tubular batteries,
