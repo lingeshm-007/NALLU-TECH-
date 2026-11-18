@@ -19,31 +19,35 @@ import { useProducts } from '../context/ProductContext';
 const SLIDES = [
   {
     image: '/images/slider/slide-1.jpg',
-    title: 'NALLU TECH Power Solutions',
-    subtitle: 'Powering Every Journey, Every Home',
-    badge: 'Flagship Store',
-    position: 'object-center',
+    title: 'NALLU TECH Headquarters',
+    subtitle: 'Nallu Illam - Verified Store Since 2013',
+    badge: 'Our Store',
+    fit: 'cover',
+    position: 'object-[center_35%]',
   },
   {
     image: '/images/slider/slide-2.jpg',
-    title: 'Battery & Vehicle Services',
-    subtitle: 'Testing, Diagnostics & EV/Auto Service',
-    badge: 'Expert Service',
-    position: 'object-center',
+    title: 'Dedicated Leadership',
+    subtitle: '20+ Years of Customer Trust & Guidance',
+    badge: 'Founder Desk',
+    fit: 'cover',
+    position: 'object-[center_30%]',
   },
   {
     image: '/images/slider/slide-3.jpg',
-    title: '20+ Years of Customer Trust',
-    subtitle: 'Meet Our Shop & Dedicated Team',
-    badge: 'Owner Verified',
-    position: 'object-[center_20%]',
+    title: 'Powering Every Journey, Every Home',
+    subtitle: 'Automotive, Inverter & UPS Battery Systems',
+    badge: 'High Backup',
+    fit: 'contain',
+    position: 'object-center',
   },
   {
     image: '/images/slider/slide-4.jpg',
-    title: 'NALLU BATTERY Solutions',
-    subtitle: 'Longer Life & Reliable Performance',
-    badge: 'High Backup',
-    position: 'object-[center_30%]',
+    title: 'Battery & Vehicle Services',
+    subtitle: 'Testing, Diagnostics & EV/Auto Service',
+    badge: 'Expert Service',
+    fit: 'cover',
+    position: 'object-center',
   },
 ];
 
@@ -148,7 +152,7 @@ export const Hero: React.FC = () => {
                 
                 {/* Image Slider Container with Full-Ratio Coverage */}
                 <div
-                  className="relative h-72 sm:h-80 lg:h-[340px] rounded-xl overflow-hidden bg-slate-950 group select-none shadow-inner"
+                  className="relative h-72 sm:h-80 lg:h-[350px] rounded-xl overflow-hidden bg-slate-950 group select-none shadow-inner"
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
@@ -160,21 +164,31 @@ export const Hero: React.FC = () => {
                     {SLIDES.map((slide, idx) => (
                       <div
                         key={idx}
-                        className="min-w-full h-full relative cursor-pointer overflow-hidden"
+                        className="min-w-full h-full relative cursor-pointer overflow-hidden flex items-center justify-center bg-slate-950"
                         onClick={() => setFullscreenImage(slide.image)}
                       >
-                        {/* Edge-to-edge full ratio image cover */}
+                        {/* Ambient blur backdrop for rich edge-to-edge fill without black bars */}
+                        <img
+                          src={slide.image}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-105 pointer-events-none"
+                        />
+
+                        {/* Perfectly proportioned main image */}
                         <img
                           src={slide.image}
                           alt={slide.title}
-                          className={`w-full h-full object-cover ${slide.position} group-hover:scale-105 transition-transform duration-700`}
+                          className={`relative max-w-full max-h-full ${
+                            slide.fit === 'contain' ? 'object-contain' : 'w-full h-full object-cover'
+                          } ${slide.position} group-hover:scale-105 transition-transform duration-700`}
                         />
                       </div>
                     ))}
                   </div>
 
                   {/* Gradient overlay for bottom captions and top buttons */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/30 pointer-events-none z-20"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/25 pointer-events-none z-20"></div>
 
                   {/* Top Right: Fullscreen View & Slide Dots */}
                   <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
