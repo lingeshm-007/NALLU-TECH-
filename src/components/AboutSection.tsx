@@ -29,8 +29,8 @@ export const AboutSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Visual Banner */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-gray-200 shadow-xl h-80 sm:h-96 lg:h-[420px]">
+          <div className="lg:col-span-5 space-y-4">
+            <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-gray-200 shadow-xl h-80 sm:h-96 lg:h-[380px]">
               {ABOUT_SLIDES.map((slide, index) => (
                 <img
                   key={slide.src}
@@ -41,7 +41,6 @@ export const AboutSection: React.FC = () => {
                   }`}
                 />
               ))}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none z-10"></div>
 
               {/* Slide indicator dots */}
               <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/20">
@@ -57,19 +56,19 @@ export const AboutSection: React.FC = () => {
                   />
                 ))}
               </div>
+            </div>
 
-              {/* Float badge */}
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/95 backdrop-blur-md border border-gray-200/80 shadow-lg text-slate-900 z-20">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shrink-0">
-                    20+
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Years in Business</h4>
-                    <p className="text-xs text-slate-500">
-                      Serving vehicle owners, homeowners, and commercial enterprises.
-                    </p>
-                  </div>
+            {/* Experience badge placed down below the image so the bottom photo is not hidden */}
+            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm text-slate-900">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-xs">
+                  20+
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Years in Business</h4>
+                  <p className="text-xs text-slate-500">
+                    Serving vehicle owners, homeowners, and commercial enterprises.
+                  </p>
                 </div>
               </div>
             </div>
