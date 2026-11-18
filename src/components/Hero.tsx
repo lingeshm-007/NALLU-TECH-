@@ -38,7 +38,7 @@ const SLIDES = [
     title: 'Powering Every Journey, Every Home',
     subtitle: 'Automotive, Inverter & UPS Battery Systems',
     badge: 'High Backup',
-    fit: 'contain',
+    fit: 'cover',
     position: 'object-center',
   },
   {
