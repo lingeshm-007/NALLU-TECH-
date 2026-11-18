@@ -22,6 +22,7 @@ const SLIDES = [
     title: 'NALLU TECH Headquarters',
     subtitle: 'Nallu Illam - Verified Store Since 2013',
     badge: 'Our Store',
+    fit: 'cover',
     position: 'object-[center_35%]',
   },
   {
@@ -29,13 +30,15 @@ const SLIDES = [
     title: 'Dedicated Leadership',
     subtitle: '20+ Years of Customer Trust & Guidance',
     badge: 'Founder Desk',
-    position: 'object-[center_28%]',
+    fit: 'cover',
+    position: 'object-[center_30%]',
   },
   {
     image: '/images/slider/slide-3.jpg',
-    title: '',
-    subtitle: '',
-    badge: '',
+    title: 'Powering Every Journey, Every Home',
+    subtitle: 'Automotive, Inverter & UPS Battery Systems',
+    badge: 'High Backup',
+    fit: 'contain',
     position: 'object-center',
   },
   {
@@ -43,6 +46,7 @@ const SLIDES = [
     title: 'Battery & Vehicle Services',
     subtitle: 'Testing, Diagnostics & EV/Auto Service',
     badge: 'Expert Service',
+    fit: 'cover',
     position: 'object-center',
   },
 ];
@@ -146,9 +150,9 @@ export const Hero: React.FC = () => {
               {/* Main Visual Card */}
               <div className="rounded-2xl overflow-hidden bg-white border border-gray-200/90 shadow-xl shadow-gray-200/50 p-6 space-y-6">
                 
-                {/* Image Slider Container with Full 16:9 Aspect Ratio to Fit Full Banners */}
+                {/* Image Slider Container with Full-Ratio Coverage */}
                 <div
-                  className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-950 group select-none shadow-inner"
+                  className="relative h-72 sm:h-80 lg:h-[350px] rounded-xl overflow-hidden bg-slate-950 group select-none shadow-inner"
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
@@ -163,20 +167,28 @@ export const Hero: React.FC = () => {
                         className="min-w-full h-full relative cursor-pointer overflow-hidden flex items-center justify-center bg-slate-950"
                         onClick={() => setFullscreenImage(slide.image)}
                       >
-                        {/* Edge-to-edge full ratio image cover */}
+                        {/* Ambient blur backdrop for rich edge-to-edge fill without black bars */}
                         <img
                           src={slide.image}
-                          alt={slide.title || 'NALLU TECH'}
-                          className={`w-full h-full object-cover ${slide.position} group-hover:scale-105 transition-transform duration-700`}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-105 pointer-events-none"
+                        />
+
+                        {/* Perfectly proportioned main image */}
+                        <img
+                          src={slide.image}
+                          alt={slide.title}
+                          className={`relative max-w-full max-h-full ${
+                            slide.fit === 'contain' ? 'object-contain' : 'w-full h-full object-cover'
+                          } ${slide.position} group-hover:scale-105 transition-transform duration-700`}
                         />
                       </div>
                     ))}
                   </div>
 
-                  {/* Gradient overlay for bottom captions and top buttons (only on slides with titles) */}
-                  {SLIDES[currentSlide].title && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/25 pointer-events-none z-20"></div>
-                  )}
+                  {/* Gradient overlay for bottom captions and top buttons */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/25 pointer-events-none z-20"></div>
 
                   {/* Top Right: Fullscreen View & Slide Dots */}
                   <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
@@ -207,22 +219,20 @@ export const Hero: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Bottom Captions & Active Slide Badge (only on slides that don't have their own banner text) */}
-                  {SLIDES[currentSlide].title && (
-                    <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between text-white z-30 pointer-events-none">
-                      <div className="max-w-[75%]">
-                        <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block drop-shadow-sm">
-                          {SLIDES[currentSlide].title}
-                        </span>
-                        <h4 className="text-xs sm:text-sm font-semibold text-white truncate drop-shadow-sm">
-                          {SLIDES[currentSlide].subtitle}
-                        </h4>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold shadow-md">
-                        {SLIDES[currentSlide].badge}
+                  {/* Bottom Captions & Active Slide Badge */}
+                  <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between text-white z-30 pointer-events-none">
+                    <div className="max-w-[75%]">
+                      <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block drop-shadow-sm">
+                        {SLIDES[currentSlide].title}
                       </span>
+                      <h4 className="text-xs sm:text-sm font-semibold text-white truncate drop-shadow-sm">
+                        {SLIDES[currentSlide].subtitle}
+                      </h4>
                     </div>
-                  )}
+                    <span className="px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold shadow-md">
+                      {SLIDES[currentSlide].badge}
+                    </span>
+                  </div>
 
                   {/* Navigation Arrows */}
                   <button
