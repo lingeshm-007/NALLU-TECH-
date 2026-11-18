@@ -35,10 +35,10 @@ const SLIDES = [
   },
   {
     image: '/images/slider/slide-3.jpg',
-    title: 'Powering Every Journey, Every Home',
-    subtitle: 'Automotive, Inverter & UPS Battery Systems',
+    title: 'Genuine Brand Batteries',
+    subtitle: 'High Backup Inverter & Power Systems',
     badge: 'High Backup',
-    fit: 'contain',
+    fit: 'cover',
     position: 'object-center',
   },
   {
