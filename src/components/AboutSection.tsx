@@ -87,7 +87,7 @@ export const AboutSection: React.FC = () => {
 
             {/* Exactly as requested in prompt */}
             <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal bg-emerald-50/40 p-5 rounded-xl border border-emerald-100">
-              “NALLU TECH provides reliable battery, UPS, and inverter solutions for homes, vehicles, and businesses. With over 20 years of industry experience, we are committed to delivering trusted products and dependable services. Our expertise is further strengthened by international technical experience gained at Submedic, Lebanon, as a Service Engineer, with hands-on knowledge in technical inspections, troubleshooting, maintenance, and service coordination.”
+              “NALLU TECH provides reliable battery, UPS, and inverter solutions for homes, vehicles, and businesses. With over 20 years of industry experience, we are committed to delivering trusted products and dependable services. Our expertise is further strengthened by international technical experience gained at SabMatic, Lebanon, as a Service Engineer, with hands-on knowledge in technical inspections, troubleshooting, maintenance, and service coordination.”
             </p>
 
             {/* Core Pillars */}
