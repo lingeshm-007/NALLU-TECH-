@@ -262,21 +262,30 @@ export const Hero: React.FC = () => {
 
                 {/* Sub-cards row */}
                 <div className="grid grid-cols-3 gap-3 pt-1">
-                  <div className="p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                  <Link
+                    to="/products?category=Car%20Batteries"
+                    className="p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-center hover:bg-emerald-50/70 hover:border-emerald-200 transition-colors block"
+                  >
                     <Battery className="w-5 h-5 mx-auto text-emerald-600 mb-1" />
                     <span className="text-xs font-bold text-slate-800 block">Vehicles</span>
                     <span className="text-[10px] text-slate-500">Cars & Bikes</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                  </Link>
+                  <Link
+                    to="/products?category=Inverters"
+                    className="p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-center hover:bg-emerald-50/70 hover:border-emerald-200 transition-colors block"
+                  >
                     <Zap className="w-5 h-5 mx-auto text-amber-600 mb-1" />
                     <span className="text-xs font-bold text-slate-800 block">Inverters</span>
                     <span className="text-[10px] text-slate-500">Sine Wave Home</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-center">
+                  </Link>
+                  <Link
+                    to="/products?category=UPS%20Batteries"
+                    className="p-3 rounded-xl bg-gray-50 border border-gray-200/80 text-center hover:bg-emerald-50/70 hover:border-emerald-200 transition-colors block"
+                  >
                     <Cpu className="w-5 h-5 mx-auto text-blue-600 mb-1" />
                     <span className="text-xs font-bold text-slate-800 block">UPS Systems</span>
                     <span className="text-[10px] text-slate-500">Office & Retail</span>
-                  </div>
+                  </Link>
                 </div>
 
                 {/* Quick direct line info */}
